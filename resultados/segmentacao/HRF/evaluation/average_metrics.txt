@@ -1,0 +1,4 @@
+Métricas médias:
+sensitivity: 0.3328
+specificity: 0.0004
+accuracy: 0.0370

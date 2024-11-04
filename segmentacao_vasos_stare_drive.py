@@ -1,3 +1,4 @@
+# aplicado ao Dataset de Diego
 import os
 import cv2
 import numpy as np
@@ -21,7 +22,7 @@ class RetinalVesselSegmentation:
         self.params = {
             'gaussian_kernel': 5,
             'gaussian_sigma': 0,
-            'blackhat_kernel': 15,
+            'blackhat_kernel': 21,
             'initial_threshold': 10
         }
 
@@ -30,8 +31,19 @@ class RetinalVesselSegmentation:
         return cv2.split(image)
 
     def _create_mask(self, green_channel):
-        """Cria máscara para isolar região de interesse."""
-        _, mask = cv2.threshold(green_channel, self.params['initial_threshold'], 255, cv2.THRESH_BINARY)
+        """Cria máscara circular para isolar a região visível do olho."""
+        height, width = green_channel.shape
+        center = (width // 2, height // 2)
+        radius = min(width, height) // 2 - 10  # Reduz um pouco o raio para evitar bordas
+        
+        # Cria uma máscara preta
+        mask = np.zeros_like(green_channel)
+        # Desenha um círculo branco
+        cv2.circle(mask, center, radius, 255, -1)
+        
+        # Aplica um threshold adicional para remover ruídos fora do círculo
+        _, mask = cv2.threshold(mask, 127, 255, cv2.THRESH_BINARY)
+        
         return mask
 
     def _apply_gaussian(self, image):
